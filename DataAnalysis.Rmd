@@ -1,0 +1,64 @@
+---
+title: "Initial Data Loading"
+author: "CNE"
+date: "09/02/2014"
+output: html_document
+---
+
+First, load raw counts data into R. NULL values are set to NA and thereby ignored in means, SDs, etc. 
+```{r}
+#Load data
+flowseq_counts <- read.table('sequences.allresults.txt', sep='\t', header=TRUE)
+rnaseq_counts <- read.table('sequences.allresults.rna.txt', sep='\t', header=TRUE)
+dnaseq_counts <- read.table('sequences.allresults.dna.txt', sep='\t', header=TRUE)
+#Replace NULL with NA
+flowseq_counts[flowseq_counts == 0] <- NA
+rnaseq_counts[rnaseq_counts == 0] <- NA
+dnaseq_counts[dnaseq_counts == 0] <- NA
+```
+
+Constants (taken from ngs/01_load_data.R):
+```{r}
+#202 Protein Bin Percentages
+bin_pcts202 <- c(22.3, 5.466666667, 7.533333333, 8.566666667, 8.4, 
+    8.133333333, 7.766666667, 7.433333333, 6.966666667, 6.066666667, 
+    4.733333333, 6.533333333)
+#Bin Values as defined in FACSDiva
+bin_breaks <- c(0,1250, 2027, 3287, 5331, 8645, 14019, 22735, 36870, 
+    59791, 96963, 157243, 255000)
+#Middle Values for each Bin
+bin_mids <- (bin_breaks[2:length(bin_breaks)] - 
+    bin_breaks[1:length(bin_breaks)-1]) / 2 + 
+    bin_breaks[1:length(bin_breaks)-1]
+#Total DNA and RNA contigs used (trimmed and merged). This is very different from what Dan uses!
+rtotal.rnaseq.202 <- 174622755
+rtotal.dnaseq.202 <- 163700417
+rtotal.all.202 <- 94979284
+```
+
+Get mean and SDs:
+```{r}
+#Get means. The '2' designates columns (1 designates rows)
+flowseq.means <- apply(flowseq_counts[,3:14], 2, mean, na.rm = TRUE)
+rnaseq.means <- apply(rnaseq_counts[,3:14], 2, mean, na.rm = TRUE)
+dnaseq.means <- apply(dnaseq_counts[,3:14], 2, mean, na.rm = TRUE)
+
+#Get SDs
+flowseq.sds <- apply(flowseq_counts[,3:14], 2, sd, na.rm = TRUE)
+rnaseq.sds <- apply(rnaseq_counts[,3:14], 2, sd, na.rm = TRUE)
+dnaseq.sds <- apply(dnaseq_counts[,3:14], 2, sd, na.rm = TRUE)
+
+#Get column sums
+flowseq.sums <- colSums(flowseq_counts[,3:14], na.rm = TRUE)
+dnaseq.sums <- colSums(dnaseq_counts[,3:14], na.rm = TRUE)
+rnaseq.sums <- colSums(rnaseq_counts[,3:14], na.rm = TRUE)
+```
+
+
+Normalize protein levels:
+```{r}
+prot_adjustment <- (flowseq_counts[, 3:14] %*% diag(bin_pcts202 / flowseq.sums))  / 
+  sum((flowseq_counts[, 3:14] %*% diag(bin_pcts202 / flowseq.sums)), na.rm = TRUE)
+```
+
+

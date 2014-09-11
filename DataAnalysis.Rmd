@@ -56,9 +56,10 @@ rnaseq.sums <- colSums(rnaseq_counts[,3:14], na.rm = TRUE)
 
 
 Normalize protein levels:
+Get error: "requires numeric/complex matrix/vector arguments"
 ```{r}
-prot_adjustment <- (flowseq_counts[, 3:14] %*% diag(bin_pcts202 / flowseq.sums))  / 
-  sum((flowseq_counts[, 3:14] %*% diag(bin_pcts202 / flowseq.sums)), na.rm = TRUE)
+prot_adjustment <- (as.matrix(flowseq_counts[, 3:14], na.rm = TRUE) %*% diag(bin_pcts202 / flowseq.sums))  / 
+  sum((as.matrix(flowseq_counts[, 3:14], na.rm = TRUE) %*% diag(bin_pcts202 / flowseq.sums)), na.rm = TRUE)
 ```
 
 

@@ -63,8 +63,8 @@ Normalize protein levels:
 Get error: "requires numeric/complex matrix/vector arguments"
 ```{r}
 #Calculates normalization factor for protein levels. Converts dataframe structure to matrix! May be detrimental in case values are changing place. Check with Dan
-prot_adjustment <- (as.matrix(flowseq_counts[, 3:14], na.rm = TRUE) %*% diag(bin_pcts202 / flowseq.sums))  / 
-  sum((as.matrix(flowseq_counts[, 3:14], na.rm = TRUE) %*% diag(bin_pcts202 / flowseq.sums)), na.rm = TRUE)
+prot_adjustment <- t(t(as.matrix(flowseq_counts[, 3:14])) * bin_pcts202 / flowseq.sums)  / 
+  sum(t(t(as.matrix(flowseq_counts[, 3:14])) * bin_pcts202 / flowseq.sums))
 ```
 
 

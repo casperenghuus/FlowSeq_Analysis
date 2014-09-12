@@ -27,9 +27,9 @@ bin_mids <- (bin_breaks[2:length(bin_breaks)] -
     bin_breaks[1:length(bin_breaks)-1]) / 2 + 
     bin_breaks[1:length(bin_breaks)-1]
 #Total DNA and RNA contigs used (trimmed and merged). This is very different from what Dan uses!
-rtotal.rnaseq.202 <- 174622755
-rtotal.dnaseq.202 <- 163700417
-rtotal.all.202 <- 94979284
+rtotal.rnaseq.202 <- 83410299
+rtotal.dnaseq.202 <- 78595047
+rtotal.all.202 <- 46727589
 ```
 
 Get mean and SDs:
@@ -58,13 +58,19 @@ dnaseq.sums <- colSums(dnaseq_counts[,3:14], na.rm = TRUE)
 rnaseq.sums <- colSums(rnaseq_counts[,3:14], na.rm = TRUE)
 ```
 
-
 Normalize protein levels:
-Get error: "requires numeric/complex matrix/vector arguments"
 ```{r}
 #Calculates normalization factor for protein levels. Converts dataframe structure to matrix! May be detrimental in case values are changing place. Check with Dan
-prot_adjustment <- t(t(as.matrix(flowseq_counts[, 3:14])) * bin_pcts202 / flowseq.sums)  / 
-  sum(t(t(as.matrix(flowseq_counts[, 3:14])) * bin_pcts202 / flowseq.sums))
+prot_adjustment <- t(t(as.matrix(flowseq_counts[, 3:14])) * (bin_pcts202/100) / flowseq.sums)  / 
+  sum(t(t(as.matrix(flowseq_counts[, 3:14])) * (bin_pcts202/100) / flowseq.sums))
+
+#Contains adjustede protein levels. Sequence name is absent
+prot.levels <- rowSums(flowseq_counts[,3:14] * as.data.frame(prot_adjustment))
 ```
 
+Getting the RNA level:
+```{r}
+rna.level <- (rnaseq_counts[,3:14] / rtotal.rnaseq.202) /
+  (dnaseq_counts[,3:14] / rtotal.dnaseq.202)
+```
 
